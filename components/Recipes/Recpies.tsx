@@ -23,7 +23,7 @@ const getYoutubeVideoId = (url: string): string | null => {
 };
 const Recipes = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
-
+  const [searchTerm, setSearchTerm] = useState<string>("");
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
@@ -39,46 +39,57 @@ const Recipes = () => {
   const handleDelete = (deletedId: string) => {
     setRecipes(recipes.filter((recipe) => recipe.id !== deletedId));
   };
-
+  const filteredRecipes = recipes.filter((recipe) => {
+    return recipe.name.toLowerCase().includes(searchTerm.toLowerCase());
+  });
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 p-4">
-      {recipes.map((recipe) => {
-        const videoId = getYoutubeVideoId(recipe.youtube);
-        const embedUrl = videoId
-          ? `https://www.youtube.com/embed/${videoId}`
-          : null;
+    <>
+      <input
+        className="w-2/3 mt-2 mx-8 p-2 border-2 bg-slate-800 border-gray-500 rounded-lg shadow-md"
+        type="text"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        placeholder="Search..."
+      />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 p-4">
+        {filteredRecipes.map((recipe) => {
+          const videoId = getYoutubeVideoId(recipe.youtube);
+          const embedUrl = videoId
+            ? `https://www.youtube.com/embed/${videoId}`
+            : null;
 
-        return (
-          <div
-            className="flex flex-col rounded-lg shadow-md border-2 border-gray-500 p-4 m-4 justify-between"
-            key={recipe.id}
-          >
-            <DeleteButton id={recipe.id} onDelete={handleDelete} />
+          return (
+            <div
+              className="flex flex-col rounded-lg shadow-md border-2 border-gray-500 p-4 m-4 justify-between"
+              key={recipe.id}
+            >
+              <DeleteButton id={recipe.id} onDelete={handleDelete} />
 
-            <h1 className="max-w-full text-2xl font-bold text-white">
-              {recipe.name}
-            </h1>
+              <h1 className="max-w-full text-2xl font-bold text-white">
+                {recipe.name}
+              </h1>
 
-            {embedUrl ? (
-              <iframe
-                width="100%"
-                height="200"
-                src={`${embedUrl}?autoplay=1`}
-                title="YouTube video player"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            ) : (
-              <h2 className="max-w-full text-xl font-bold text-white">
-                {recipe.youtube}
-              </h2>
-            )}
+              {embedUrl ? (
+                <iframe
+                  width="100%"
+                  height="200"
+                  src={`${embedUrl}?autoplay=1`}
+                  title="YouTube video player"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <h2 className="max-w-full text-xl font-bold text-white">
+                  {recipe.youtube}
+                </h2>
+              )}
 
-            <p className="text-gray-400 text-sm">{recipe.rocket}</p>
-          </div>
-        );
-      })}
-    </div>
+              <p className="text-gray-400 text-sm">{recipe.rocket}</p>
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 };
 
